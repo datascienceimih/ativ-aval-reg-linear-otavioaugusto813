@@ -1,0 +1,404 @@
+---
+title: "Atividade Avaliativa 01 ML"
+author: "Otávio"
+date: "08/04/2019"
+output: html_document
+---
+
+#Atividade Avaliativa 01 - Machine Learning
+
+##Aluno: Otávio Augusto Alves Coelho
+##Professor: Neylson Crepalde
+##Curso: Ciências de Dados
+## Exercício Realizado no Rstudio
+
+
+## Exercício 1 [8]
+
+
+#carregando a biblioteca library(ISLR), onde está o banco de dados Auto, e as outras bibliotecas
+#estatísticas necessárias para resolução dos exercícios.
+
+if (! "ISLR" %in% installed.packages()) install.packages("ISLR")
+if (! "MASS" %in% installed.packages()) install.packages("MASS")
+if (! "dplyr" %in% installed.packages()) install.packages("dplyr")
+if (! "ggplot2" %in% installed.packages()) install.packages("ggplot2")
+if (! "readr" %in% installed.packages()) install.packages("readr")
+if (! "texreg" %in% installed.packages()) install.packages("texreg")
+
+library(ISLR)
+library(readr)
+library(dplyr)
+library(texreg)
+library(ggplot2)
+
+#realizando a regressão linear em que mpg é o predicto e o horsepower é o preditor
+
+str(Auto)
+reg1 = lm(mpg ~ horsepower, data = Auto)
+summary(reg1)
+
+
+## a) I - como se observa, o p-valor é muito pequeno, menor que 0.05, 
+# o que indica que há uma correlação
+#estatisticamente válida entre ambos.
+## II - como o p-valor é próximo de 0, menor do que 0.05,
+# podemos dizer que a correlação é forte. Ao mesmo tempo, pelo valor do 
+# Multiple R-squared, que é de 0.6059, podemos dizer que o poder explicativo do modelo é de 60,59%.
+## III - como se observa pelo valor negativo do coeficiente, 
+# temos uma correlação negativa entre o horsepower e o mpg, o que indica que o aumento de 
+# horsepower significa uma diminuição no número de mpg (milhas por galão).
+## IV -  
+
+
+predict(reg1, data.frame(horsepower=c(98)), interval="confidence")
+predict(reg1, data.frame(horsepower=c(98)), interval="prediction")
+
+## b) 
+
+plot(mpg ~ horsepower, data=Auto)
+abline(reg1, col="red", lwd = 2)
+
+
+## c)
+
+#usamos o comando par(mfrow=c(2,2)) que irá dividir a tela de print em quatro partes
+#onde 4 gráficos distintos serão plotados.
+
+par(mfrow=c(2,2))
+plot(reg1)
+
+#como se observa há possibilidade de a correlação entre as variáveis não ser
+#linear;
+
+
+## Exerício 2 [9]
+
+#a) produzindo uma scatterbox plot que inclua todas as variáveis contidas no
+#data set Auto
+
+data(Auto)
+pairs(Auto)
+
+##b) 
+
+cor(subset(Auto, select= -name))
+
+##c) 
+
+str(Auto)
+reg2 = lm(mpg ~ cylinders + displacement + horsepower + weight + acceleration + year + origin, data=Auto)
+summary(reg2)
+
+## I) Sim, há relação. Não há relação entre o predicto e todos os preditores. Como se observa, há alguns valores para o 
+#p-valor acima de 0.05, como para cylinders, horsepower, acceleration e origin.
+
+## II) O modelo aponta correlação estatística significativa para displacement, weight, year e origin.
+
+## III) O coeficiente positivo de 0.75 aponta que a cada ano há um aumento de milhas por galão,
+#isto é, que o carro se torna mais econômico, já que consegue andar mais milhas com um galão.
+
+## d) 
+par(mfrow=c(2,2))
+plot(reg2)
+
+# os resíduos apontam alguns outliers, especialmente acima da curva. O leverage plot aponta observações
+## com leverage alto, como se observa nos pontos distribuídos em torno do valor 4 (sendo que 
+## a maior parte dos valores está entre -2 e 2).
+
+
+
+## Exercício 3 [10]
+
+data("Carseats")
+head(Carseats)
+str(Carseats)
+
+# a)
+
+reg3 = lm(Sales ~ Population + Urban + US, data = Carseats)
+summary(reg3)
+
+# b) a partir da operacionalização da correlação linear, observa-se que não há correlação estatisticamente
+#válida entre todos os valores. Os p-valores para Population e Urban são maiores que 0.05, indicando sua 
+#ausência de correlação com as Vendas. Ao mesmo tempo, contudo, o p-valor apresentado para US aponta uma correlação 
+#significativa entre esta variável e as vendas. Nesse sentido, observa-se que há uma relação entre a localização 
+#da loja e o número de vendas. Se a loja onde a venda foi realizada está nos EUA, espera-se
+#um aumento de 1036 unidades vendidas.
+
+## c) 
+
+# Sales = 0.0007Pop - 0.1341Urbanyes + 1.036USYes + 6.72
+
+## d) Posso rejeitar a hipótese nula apenas para a variável USYes, já que seu p-valor
+# é menor do que 0.05.
+
+## e) 
+
+reg4 = lm(Sales ~ US, data=Carseats)
+summary(reg4)
+
+
+## f) Ambas são semelhantes, embora o poder explicativo da segunda seja maior, já que esta
+## possui um Multiple R-squared (para regressões lineares simples) maior do 
+# que o Adjusted R-squared (para correlações múltiplas) da segunda. Ao mesmo tempo,
+# por ser mais simples, possuindo menos variáveis, preferimos ela em relação 
+# à primeira, embora as diferenças sejam pequenas.
+
+## g) 
+
+confint(reg4, level=0.95)
+
+## h)
+
+par(mfrow=c(2,2))
+plot(reg4)
+
+# Há evidências de high leverage se considerarmos os valores próximos de 3 no gráfico de leverage.
+
+## Exercício 4 (13)
+
+
+##a)
+set.seed(1)
+x=rnorm(100)
+
+##b)
+
+eps = rnorm(100, 0, sqrt(0.25))
+
+##c)
+
+y = -1 + 0.5*x + eps
+
+## o tamanho de y é 100. Beta 0 é -1 e Beta1 é 0.5.
+
+## d)
+
+plot(x, y)
+
+## observa-se uma correlação positiva e ascendente entre as variáveis.
+
+## e)
+
+regz=lm(y ~ x)
+summary(regz)
+
+
+# observa-se uma correlação estatisticamente válida entre as variáveis, já que o p-valor é menor 
+# do que 0.05 (pode-se rejeitar a hipótese nula).
+# O acréscimo de uma unidade em x implica um aumento de 0.499 em y.
+# comparando os valores, podemos perceber que ambos os modelos possuem valores para B0 e B1 similares.
+
+## f)
+
+abline(regz, col="red", lwd=2)
+#é a reta da correlação seguindo o método do
+# mínimos quadrados ordinários
+
+# sendo a fórmula para a linha de regressão populacional Y = B0 + B1X, podemos dizer que a reta
+# será baseada na função criada na letra c. Dessa forma, temos a equação para essa linha:
+
+ypop = -1 + 0.5*x
+
+# traçando a linha
+
+abline(-1, 0.5, col="blue", lwd=2)
+
+legend(1, -1, legend=c("Reta OLS", "Reta Pop."), col=c("red", "blue"), lty=1:5, cex=0.5)
+
+## g)
+
+regy = lm(y ~ x + I(x^2))
+summary(regz)
+summary(regy)
+
+# comparando os valores de Residual standard error e Multiple R-Squared, observa-se que a função
+# aumenta levemente seu poder explicativo, já que o primeiro diminui (4814 > 0.479) e o segundo aumenta
+# (0.4674 < 0.4779).
+# 
+#
+# h)
+
+#a) set.seed(1)
+x1=rnorm(100)
+#b) 
+eps1 = rnorm(100, 0, sqrt(0.1))
+# c) 
+y1 = -1 + 0.5*x1 + eps1 #o tamanho de y é 100. Beta 0 é -1 e Beta1 é 0.5
+#d) 
+plot(x1, y1) #observa-se uma correlação positiva e ascendente entre as variáveis.
+#e) 
+regk = lm(y1 ~ x1)
+summary(regk)
+summary(regz)
+#f) 
+abline(regk, col="red", lwd=2)
+ypop1 = -1 + 0.5*x
+abline(-1, 0.5, col="blue", lwd=2)
+legend(1, -1, legend=c("Reta OLS", "Reta Pop."), col=c("red", "blue"), lty=1:5, cex=0.5)
+
+## se no primeiro exemplo observava-se que as retas basicamente coincidiam, com a mudança na
+#variância do modelo, observa-se que a reta OLS, baseada nos mínimos quadrados ordinários, torna-se
+#mais inclinada do que a reta populacional. 
+# como se observa ao comparar ambos os modelos, o multiple R-squared é muito maior no segundo modelo
+#regk (0.7348 > 0.4674), o que significa que seu poder explicativo é maior.
+
+
+# i)
+
+#a) set.seed(1)
+x2=rnorm(100)
+#b) 
+eps2 = rnorm(100, 0, sqrt(0.3))
+# c) 
+y2 = -1 + 0.5*x2 + eps2
+#d) 
+plot(x2, y2) #observa-se uma correlação positiva e ascendente entre as variáveis.
+#e) 
+regl = lm(y2 ~ x2)
+#f) 
+abline(regl, col="red", lwd=2)
+ypop1 = -1 + 0.5*x
+abline(-1, 0.5, col="blue", lwd=2)
+legend(1, -1, legend=c("Reta OLS", "Reta Pop."), col=c("red", "blue"), lty=1:5, cex=0.5)
+summary(regl)
+summary(regz)
+
+
+## o contrário ocorre em relação ao item anterior. aumentando a variância, observa-se que o modelo
+# adquire um menor poder explicativo, de 52%, menor do que o valor de 73% do item anterior, 
+# embora se mantenha maior do que o valor da reta populacional, 
+# que possui um multiple R-squared de 0.4674, isto é, um poder explicativo de 46,74%.
+
+## Exercício 5 [15]
+
+##a)
+library(MASS)
+data(Boston)
+head(Boston)
+str(Boston)
+
+reg6 = lm(crim ~ zn, data=Boston)
+reg7 = lm(crim ~ indus, data=Boston)
+reg8 = lm(crim ~ chas, data=Boston)
+reg9 = lm(crim ~ nox, data=Boston)
+reg10 = lm(crim ~ rm, data=Boston)
+reg11 = lm(crim ~ age, data=Boston)
+reg12 = lm(crim ~ dis, data=Boston)
+reg13 = lm(crim ~ rad, data=Boston)
+reg14 = lm(crim ~ tax, data=Boston)
+reg15 = lm(crim ~ ptratio, data=Boston)
+reg16 = lm(crim ~ black, data=Boston)
+reg17 = lm(crim ~ lstat, data=Boston)
+reg18 = lm(crim ~ medv , data=Boston)
+??(Boston)
+
+summary(reg6)
+# Há uma correlação estatisticamente válida entre as variáveis, já que o p-valor
+#para zn é menor que 0.05. Esta correlação, contudo, é negativa.
+summary(reg7)
+#Há uma correlação estatisticamente válida entre as variáveis, já que o p-valor
+#para chas é menor que 0.05. Esta correlação é positiva.
+summary(reg8)
+##Não há correlação estatisticamente válida entre as variáveis crim e chas.
+summary(reg9)
+## Há uma correlação estatisticamente válida entre as variáveis, já que o p-valor
+#para nox é menor que 0.05. Esta correlação é positiva.
+summary(reg10)
+##Há uma correlação estatisticamente válida entre as variáveis, já que o p-valor
+#para rm é menor que 0.05. Esta correlação é negativa.
+summary(reg11)
+## Há uma correlação estatisticamente válida entre as variáveis, já que o p-valor
+#para age é menor que 0.05. Esta correlação é positiva.
+summary(reg12)
+## Há uma correlação estatisticamente válida entre as variáveis, já que o p-valor
+#para dis é menor que 0.05. Esta correlação é negativa.
+summary(reg13)
+## Há uma correlação estatisticamente válida entre as variáveis, já que o p-valor
+#para rad é menor que 0.05.Esta correlação é positiva.
+summary(reg14)
+## Há uma correlação estatisticamente válida entre as variáveis, já que o p-valor
+#para tax é menor que 0.05.Esta correlação é positiva.
+summary(reg15)
+## Há uma correlação estatisticamente válida entre as variáveis, já que o p-valor
+#para ptratio é menor que 0.05.Esta correlação é positiva.
+summary(reg16)
+## Há uma correlação estatisticamente válida entre as variáveis, já que o p-valor
+#para black é menor que 0.05. Esta correlação é negativa.
+summary(reg17)
+## Há uma correlação estatisticamente válida entre as variáveis, já que o p-valor
+#para lstat é menor que 0.05.Esta correlação é positiva
+summary(reg18)
+## Há uma correlação estatisticamente válida entre as variáveis, já que o p-valor
+#para medv é menor que 0.05.Esta correlação é negativa.
+
+
+## b)
+reg_completa = lm(crim ~ zn + indus + chas + nox + rm + age + 
+                    dis + rad + tax + ptratio + black + lstat + medv, data=Boston)
+summary(reg_completa)
+
+# Há uma correlação estatisticamente válida entre crim e as variáveis
+# zn, dis, rad, black, medv. Para essas variáveis podemos rejeitar a hipótese nula.
+
+# c)
+
+# Quando comparamos os dados de a e b observamos que algumas variáveis, quando,
+# associadas a outras, perdem seu efeito. Se, em um primeiro momento, apenas a 
+# variável chas não apresentava correlação significativa com a taxa de crimes, quan-
+# do realizamos uma correlação múltipla, outras variáveis também deixam de possuir
+# correlação estatística significativa com crim. Se a variável chas mantém sua não correlação, outras 
+# variáveis, como indus, nox, rm, tax, ptratio e lstat, que antes aparentavam 
+# possuir correlação significativa, agora não a apresentam em relação a crim, já que
+# seus p-valores são maiores do que 0.05. 
+
+# Segunda parte
+x = c(coefficients(reg6)[2],
+      coefficients(reg7)[2],
+      coefficients(reg8)[2],
+      coefficients(reg9)[2],
+      coefficients(reg10)[2],
+      coefficients(reg11)[2],
+      coefficients(reg12)[2],
+      coefficients(reg13)[2],
+      coefficients(reg14)[2],
+      coefficients(reg15)[2],
+      coefficients(reg16)[2],
+      coefficients(reg17)[2],
+      coefficients(reg18)[2])
+y = coefficients(reg_completa)[2:14]
+plot(x, y)
+
+# coeficiente (-10,0) no modelo unilinear e (30, -10) no modelo de regressão múltipla.
+
+# d) 
+?
+
+
+
+## FIM
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## R Markdown
+
+This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
+
+When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
+
+```{r cars}
+summary(cars)
+```
+
+## Including Plots
+
+You can also embed plots, for example:
+
+```{r pressure, echo=FALSE}
+plot(pressure)
+```
+
+Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
